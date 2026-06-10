@@ -12,7 +12,7 @@ const EMPTY_FORM: LeadForm = {
 	tel: "",
 	address: "",
 	position: "",
-	details: "",
+	message: "",
 	status: "Новий",
 	gender: "",
 	messengers: [],
@@ -293,13 +293,13 @@ const Leads = ({ leads, setLeads, load, clients }: LeadsProps) => {
 						/>
 					</div>
 					<div className="input-container">
-						<label htmlFor="details">Повідомлення</label>
+						<label htmlFor="message">Повідомлення</label>
 						<input
-							id="details"
+							id="message"
 							className="input"
 							onChange={(e) => handleForm(e.target.name, e.target.value)}
-							value={form.details}
-							name="details"
+							value={form.message}
+							name="message"
 							type="text"
 						/>
 					</div>
@@ -495,7 +495,7 @@ const Leads = ({ leads, setLeads, load, clients }: LeadsProps) => {
 											<td>{l.gender}</td>
 											<td>{l.address}</td>
 											<td>{l.position}</td>
-											<td style={{ maxWidth: "200px" }}>{l.details}</td>
+											<td style={{ maxWidth: "200px" }}>{l.message}</td>
 											<td style={{ width: "1%", whiteSpace: "nowrap" }}>
 												<select
 													className={`status-select ${l.status === "Знайшов роботу" ? "status-select--orange" : l.status === "Працює" ? "status-select--blue" : l.status === "Неактивний" ? "status-select--red" : ""}`}

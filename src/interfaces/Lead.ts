@@ -4,7 +4,7 @@ export interface Lead {
 	tel: string;
 	gender: string;
 	address: string;
-	details: string;
+	message: string;
 	position: string;
 	status: string;
 	created_at: Date;
