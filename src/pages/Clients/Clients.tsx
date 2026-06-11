@@ -2,6 +2,7 @@ import { supabase } from "../../lib/supabase";
 import { useState, useEffect } from "react";
 import type { Client } from "../../interfaces/Client";
 import "./styles.scss";
+import Menu from "../../components/Menu/Menu";
 
 type ClientForm = Omit<Client, "created_at" | "updated_at">;
 
@@ -248,6 +249,7 @@ const Clients = ({ clients, load }: ClientsProps) => {
 				</div>
 			</div>
 			<main className="main">
+				<Menu />
 				<div style={{ display: "flex", justifyContent: "space-between" }}>
 					<h1 className="main__title">Ліди</h1>
 				</div>

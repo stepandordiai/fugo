@@ -15,7 +15,7 @@ html {
 body {
 	position: relative;
 	font-family: "Nunito", sans-serif;
-	background: var(--bg-clr);
+	background: linear-gradient(to bottom, #1b001c, #87008c);
 }
 
 .layout {
@@ -108,6 +108,9 @@ table {
 }
 
 .close-btn {
+	position: sticky;
+	top: 0;
+	align-self: flex-end;
 	background: rgb(255, 66, 246);
 	padding: 10px;
 	border-radius: 25px;
@@ -241,9 +244,12 @@ form {
 	background: rgb(138, 77, 243);
 	color: #fff;
 	padding: 10px;
-	min-width: 50px;
-	height: 50px;
-	border-radius: 25px;
+	border-radius: 15px;
+
+	&--disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
 }
 
 .input-container {
@@ -270,22 +276,26 @@ form {
 }
 
 .input {
-	border-radius: 25px;
+	border-radius: 15px;
 	height: 50px;
 	padding: 10px;
 	border: 1px solid white;
 	width: 100%;
 
 	&:focus {
-		border: 1px solid #ffffff;
+		background: rgba(255, 255, 255, 0.1);
 	}
 
 	&:focus-within {
-		border: 1px solid #ffffff;
+		border: 1px solid #fff;
 	}
 
 	&--incorrect {
 		outline: 1px solid rgb(255, 115, 115) !important;
+	}
+
+	&--disabled {
+		border: 1px solid rgba(255, 255, 255, 0.5);
 	}
 }
 

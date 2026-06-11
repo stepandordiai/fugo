@@ -23,3 +23,42 @@
 		font-weight: 900;
 	}
 }
+
+.charts-container {
+	overflow-y: scroll;
+}
+
+.menu-btn {
+	color: #fff;
+	background: rgba(255, 255, 255, 0.1);
+	align-self: flex-end;
+	padding: 0.75rem;
+	border-radius: 12px;
+	display: none;
+}
+
+.menu {
+	position: fixed;
+	inset: 0;
+	z-index: 9999;
+	-webkit-backdrop-filter: blur(10px);
+	backdrop-filter: blur(10px);
+	background: rgba(0, 0, 0, 0.5);
+	opacity: 0;
+	pointer-events: none;
+	padding: 10px;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+
+	&--visible {
+		opacity: 1;
+		pointer-events: auto;
+	}
+}
+
+@media screen and (width < 700px) {
+	.menu-btn {
+		display: inline-flex;
+	}
+}

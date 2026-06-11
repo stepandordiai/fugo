@@ -2,11 +2,11 @@ import { supabase } from "../../lib/supabase";
 import { useState, useEffect } from "react";
 import type { Lead } from "../../interfaces/Lead";
 import type { Client } from "../../interfaces/Client";
+import { trimValue } from "../../helpers/trimValue";
 import "./styles.scss";
+import Menu from "../../components/Menu/Menu";
 
-type LeadForm = Omit<Lead, "created_at" | "updated_at">;
-
-const EMPTY_FORM: LeadForm = {
+const EMPTY_FORM: Lead = {
 	id: "",
 	name: "",
 	tel: "",
@@ -17,6 +17,8 @@ const EMPTY_FORM: LeadForm = {
 	gender: "",
 	messengers: [],
 	client_id: "",
+	created_at: new Date(),
+	updated_at: new Date(),
 };
 
 type LeadsProps = {
@@ -35,6 +37,8 @@ const Leads = ({ leads, setLeads, load, clients }: LeadsProps) => {
 	const [deleteModal, setDeleteModal] = useState(false);
 	const [idToDelete, setIdToDelete] = useState("");
 	const [formLoading, setFormLoading] = useState(false);
+	const [deleteFormLoading, setDeleteFormLoading] = useState(false);
+	const [updateState, setUpdateState] = useState(false);
 
 	// TODO: learn this
 	const filteredLeads = leads.filter((lead) =>
@@ -58,8 +62,11 @@ const Leads = ({ leads, setLeads, load, clients }: LeadsProps) => {
 		setFormLoading(true);
 
 		try {
-			const { id, ...rest } = data;
-			const { error } = await supabase.from("leads").insert([rest]);
+			const { id, tel, created_at, updated_at, ...rest } = data;
+
+			const { error } = await supabase
+				.from("leads")
+				.insert([{ tel: trimValue(tel), ...rest }]);
 
 			if (error) {
 				if (error.code === "23505") setError("Лід з таким номером вже існує");
@@ -78,8 +85,11 @@ const Leads = ({ leads, setLeads, load, clients }: LeadsProps) => {
 		setFormLoading(true);
 
 		try {
-			const { id: _, ...rest } = data;
-			const { error } = await supabase.from("leads").update(rest).eq("id", id);
+			const { id: _, tel, created_at, updated_at, ...rest } = data;
+			const { error } = await supabase
+				.from("leads")
+				.update({ tel: trimValue(tel), ...rest })
+				.eq("id", id);
 
 			if (error) {
 				if (error.code === "23505") setError("Лід з таким номером вже існує");
@@ -94,9 +104,21 @@ const Leads = ({ leads, setLeads, load, clients }: LeadsProps) => {
 	};
 
 	const deleteLead = async (id: string) => {
-		const { error } = await supabase.from("leads").delete().eq("id", id);
-		if (error) console.error("Delete error:", error.message);
-		else load();
+		setDeleteFormLoading(true);
+
+		try {
+			const { error } = await supabase.from("leads").delete().eq("id", id);
+			if (error) throw error;
+			load();
+		} catch (error) {
+			console.error("Delete error:", error);
+		} finally {
+			setDeleteFormLoading(false);
+			setForm(EMPTY_FORM);
+			setModalVisible(false);
+			setDeleteModal(false);
+			setIdToDelete("");
+		}
 	};
 
 	// FIXME:
@@ -107,16 +129,13 @@ const Leads = ({ leads, setLeads, load, clients }: LeadsProps) => {
 		} else {
 			await updateLead(form.id, form);
 		}
-		setForm(EMPTY_FORM);
 		setIsNew(false);
-		setModalVisible(false);
+		setUpdateState(false);
 		await load();
 	};
 
 	const handleDelete = () => {
 		deleteLead(idToDelete);
-		setIdToDelete("");
-		setDeleteModal(false);
 	};
 
 	const toggleIsWorking = async (id: string, value: string) =>
@@ -158,28 +177,29 @@ const Leads = ({ leads, setLeads, load, clients }: LeadsProps) => {
 	return (
 		<>
 			<div className={`modal ${modalVisible ? "modal--visible" : ""}`}>
+				<button
+					className="close-btn"
+					onClick={() => {
+						setModalVisible(false);
+						setForm(EMPTY_FORM);
+						setUpdateState(false);
+					}}
+				>
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						width="16"
+						height="16"
+						fill="currentColor"
+						className="bi bi-x-lg"
+						viewBox="0 0 16 16"
+					>
+						<path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z" />
+					</svg>
+				</button>
 				<div style={{ display: "flex", justifyContent: "space-between" }}>
 					<p className="form__title">
 						{isNew ? "Створити лід" : "Змінити лід"}
 					</p>
-					<button
-						className="close-btn"
-						onClick={() => {
-							setModalVisible(false);
-							setForm(EMPTY_FORM);
-						}}
-					>
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							width="16"
-							height="16"
-							fill="currentColor"
-							className="bi bi-x-lg"
-							viewBox="0 0 16 16"
-						>
-							<path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z" />
-						</svg>
-					</button>
 				</div>
 				{error && <p style={{ color: "red" }}>{error}</p>}
 				<form
@@ -188,26 +208,46 @@ const Leads = ({ leads, setLeads, load, clients }: LeadsProps) => {
 						handleSave(form);
 					}}
 				>
+					{!isNew && (
+						<div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+							<div>
+								<p>Створено</p>
+								<p>
+									{new Date(form.created_at).toLocaleDateString()}{" "}
+									{new Date(form.created_at).toLocaleTimeString()}
+								</p>
+							</div>
+							<div>
+								<p>Оновлено</p>
+								<p>
+									{new Date(form.updated_at).toLocaleDateString()}{" "}
+									{new Date(form.updated_at).toLocaleTimeString()}
+								</p>
+							</div>
+						</div>
+					)}
 					<div className="input-container">
 						<label htmlFor="name">Імя</label>
 						<input
 							id="name"
-							className="input"
+							className={`input ${!isNew && !updateState ? "input--disabled" : ""}`}
 							onChange={(e) => handleForm(e.target.name, e.target.value)}
 							value={form.name}
 							name="name"
 							type="text"
+							disabled={!isNew && !updateState}
 						/>
 					</div>
 					<div className="input-container">
 						<label htmlFor="tel">Номер телефону</label>
 						<input
 							id="tel"
-							className="input"
+							className={`input ${!isNew && !updateState ? "input--disabled" : ""}`}
 							onChange={(e) => handleForm(e.target.name, e.target.value)}
 							value={form.tel}
 							name="tel"
 							type="text"
+							disabled={!isNew && !updateState}
 						/>
 					</div>
 					<div>
@@ -228,6 +268,7 @@ const Leads = ({ leads, setLeads, load, clients }: LeadsProps) => {
 													type="radio"
 													checked={isAvailable === true}
 													onChange={() => handleMessenger(name, true)}
+													disabled={!isNew && !updateState}
 												/>
 												Так
 											</label>
@@ -236,6 +277,7 @@ const Leads = ({ leads, setLeads, load, clients }: LeadsProps) => {
 													type="radio"
 													checked={isAvailable === false}
 													onChange={() => handleMessenger(name, false)}
+													disabled={!isNew && !updateState}
 												/>
 												Ні
 											</label>
@@ -255,6 +297,7 @@ const Leads = ({ leads, setLeads, load, clients }: LeadsProps) => {
 									value="Жінка"
 									checked={form.gender === "Жінка"}
 									onChange={(e) => handleForm(e.target.name, e.target.value)}
+									disabled={!isNew && !updateState}
 								/>
 								Жінка
 							</label>
@@ -265,6 +308,7 @@ const Leads = ({ leads, setLeads, load, clients }: LeadsProps) => {
 									value="Чоловік"
 									checked={form.gender === "Чоловік"}
 									onChange={(e) => handleForm(e.target.name, e.target.value)}
+									disabled={!isNew && !updateState}
 								/>
 								Чоловік
 							</label>
@@ -274,44 +318,96 @@ const Leads = ({ leads, setLeads, load, clients }: LeadsProps) => {
 						<label htmlFor="address">Адреса</label>
 						<input
 							id="address"
-							className="input"
+							className={`input ${!isNew && !updateState ? "input--disabled" : ""}`}
 							onChange={(e) => handleForm(e.target.name, e.target.value)}
 							value={form.address}
 							name="address"
 							type="text"
+							disabled={!isNew && !updateState}
 						/>
 					</div>
 					<div className="input-container">
 						<label htmlFor="position">Позиція</label>
 						<input
 							id="position"
-							className="input"
+							className={`input ${!isNew && !updateState ? "input--disabled" : ""}`}
 							onChange={(e) => handleForm(e.target.name, e.target.value)}
 							value={form.position}
 							name="position"
 							type="text"
+							disabled={!isNew && !updateState}
 						/>
 					</div>
 					<div className="input-container">
 						<label htmlFor="message">Повідомлення</label>
 						<input
 							id="message"
-							className="input"
+							className={`input ${!isNew && !updateState ? "input--disabled" : ""}`}
 							onChange={(e) => handleForm(e.target.name, e.target.value)}
 							value={form.message}
 							name="message"
 							type="text"
+							disabled={!isNew && !updateState}
 						/>
 					</div>
-					<button className="form__submit-btn" type="submit">
-						{formLoading
-							? isNew
-								? "Створення..."
-								: "Збереження..."
-							: isNew
-								? "Створити"
-								: "Змінити"}
-					</button>
+					<div
+						style={{
+							display: "flex",
+							justifyContent: "space-between",
+							flexWrap: "wrap",
+							gap: "4px",
+							position: "sticky",
+							bottom: 0,
+						}}
+					>
+						{!isNew && (
+							<div style={{ display: "flex", gap: "5px" }}>
+								<button
+									type="button"
+									className="update-btn"
+									onClick={() => {
+										setUpdateState(true);
+									}}
+								>
+									Редагувати
+								</button>
+								<button
+									type="button"
+									className="delete-btn"
+									onClick={() => {
+										(setDeleteModal(true), setIdToDelete(form.id));
+									}}
+								>
+									Видалити
+								</button>
+							</div>
+						)}
+						<div style={{ display: "flex", gap: "4px" }}>
+							{updateState && (
+								<button
+									onClick={() => setUpdateState(false)}
+									className={`form__submit-btn ${!updateState && !isNew ? "form__submit-btn--disabled" : ""}`}
+									type="button"
+									disabled={!updateState && !isNew}
+								>
+									Скасувати
+								</button>
+							)}
+							<button
+								className={`form__submit-btn ${!updateState && !isNew ? "form__submit-btn--disabled" : ""}`}
+								type="submit"
+								disabled={!updateState && !isNew}
+							>
+								{formLoading
+									? isNew
+										? "Створення..."
+										: "Збереження..."
+									: isNew
+										? "Створити"
+										: "Змінити"}
+							</button>
+						</div>
+					</div>
 				</form>
 			</div>
 			<div
@@ -321,6 +417,7 @@ const Leads = ({ leads, setLeads, load, clients }: LeadsProps) => {
 					setIsNew(false);
 					setIdToDelete("");
 					setForm(EMPTY_FORM);
+					setUpdateState(false);
 				}}
 				className={`main-curtain ${modalVisible || deleteModal ? "main-curtain--visible" : ""}`}
 			></div>
@@ -360,13 +457,14 @@ const Leads = ({ leads, setLeads, load, clients }: LeadsProps) => {
 							color: "#fff",
 							fontWeight: 600,
 						}}
-						onClick={() => handleDelete()}
+						onClick={handleDelete}
 					>
-						Підтвердити
+						{deleteFormLoading ? "Видалення..." : "Підтвердити"}
 					</button>
 				</div>
 			</div>
 			<main className="main">
+				<Menu />
 				<div style={{ display: "flex", justifyContent: "space-between" }}>
 					<h1 className="main__title">Ліди</h1>
 				</div>
@@ -437,9 +535,10 @@ const Leads = ({ leads, setLeads, load, clients }: LeadsProps) => {
 												{diffDays <= 3 && (
 													<span
 														style={{
-															background: "var(--sec-accent-clr)",
-															color: "#000",
-															padding: "5px",
+															background: "#fd0a9c",
+															color: "#fff",
+															padding: "4px",
+															borderRadius: "8px",
 														}}
 													>
 														Новий
@@ -530,28 +629,16 @@ const Leads = ({ leads, setLeads, load, clients }: LeadsProps) => {
 												)}
 											</td>
 											<td style={{ width: "1%" }}>
-												<div style={{ display: "flex", gap: "5px" }}>
-													<button
-														className="update-btn"
-														onClick={() => {
-															setForm(l);
-															setModalVisible(true);
-															setIsNew(false);
-														}}
-													>
-														Редагувати
-														{/* <EditIcon size={20} /> */}
-													</button>
-													<button
-														className="delete-btn"
-														onClick={() => {
-															(setDeleteModal(true), setIdToDelete(l.id));
-														}}
-													>
-														Видалити
-														{/* <TrashIcon size={20} /> */}
-													</button>
-												</div>
+												<button
+													className="update-btn"
+													onClick={() => {
+														setModalVisible(true);
+														setForm(l);
+														setIsNew(false);
+													}}
+												>
+													Details
+												</button>
 											</td>
 										</tr>
 									);
