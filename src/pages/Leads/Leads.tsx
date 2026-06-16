@@ -1,10 +1,14 @@
 import { supabase } from "../../lib/supabase";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import type { Lead } from "../../interfaces/Lead";
 import type { Client } from "../../interfaces/Client";
 import { trimValue } from "../../helpers/trimValue";
 import "./styles.scss";
 import Menu from "../../components/Menu/Menu";
+import Pagination from "../../components/Pagination/Pagination";
+import TrashIcon from "../../components/icons/TrashIcon";
+import EditIcon from "../../components/icons/EditIcon";
+import DotsIcon from "../../components/icons/DotsIcon";
 
 const EMPTY_FORM: Lead = {
 	id: "",
@@ -39,6 +43,7 @@ const Leads = ({ leads, setLeads, load, clients }: LeadsProps) => {
 	const [formLoading, setFormLoading] = useState(false);
 	const [deleteFormLoading, setDeleteFormLoading] = useState(false);
 	const [updateState, setUpdateState] = useState(false);
+	const containerRef = useRef<HTMLDivElement | null>(null);
 
 	// TODO: learn this
 	const filteredLeads = leads.filter((lead) =>
@@ -173,6 +178,15 @@ const Leads = ({ leads, setLeads, load, clients }: LeadsProps) => {
 	};
 
 	const totalPages = Math.ceil(leads.length / 50);
+
+	useEffect(() => {
+		if (!containerRef.current) return;
+		containerRef.current.scrollTo({
+			top: 0,
+			left: 0,
+			behavior: "smooth",
+		});
+	}, [currentPage]);
 
 	return (
 		<>
@@ -369,7 +383,7 @@ const Leads = ({ leads, setLeads, load, clients }: LeadsProps) => {
 										setUpdateState(true);
 									}}
 								>
-									Редагувати
+									<EditIcon />
 								</button>
 								<button
 									type="button"
@@ -378,7 +392,7 @@ const Leads = ({ leads, setLeads, load, clients }: LeadsProps) => {
 										(setDeleteModal(true), setIdToDelete(form.id));
 									}}
 								>
-									Видалити
+									<TrashIcon />
 								</button>
 							</div>
 						)}
@@ -471,13 +485,11 @@ const Leads = ({ leads, setLeads, load, clients }: LeadsProps) => {
 				<div
 					className="container-header"
 					style={{
-						position: "sticky",
-						top: "0px",
-						padding: "10px 0",
 						display: "flex",
-						color: "#fff",
 						justifyContent: "space-between",
-						background: "rgba(255, 255, 255, 0.1)",
+						alignItems: "flex-end",
+						flexWrap: "wrap",
+						gap: "var(--space-4)",
 					}}
 				>
 					<input
@@ -494,10 +506,10 @@ const Leads = ({ leads, setLeads, load, clients }: LeadsProps) => {
 							setModalVisible(true);
 						}}
 					>
-						Новий лід
+						+ Новий лід
 					</button>
 				</div>
-				<div className="container">
+				<div ref={containerRef} className="container">
 					<table>
 						<thead>
 							<tr>
@@ -630,14 +642,14 @@ const Leads = ({ leads, setLeads, load, clients }: LeadsProps) => {
 											</td>
 											<td style={{ width: "1%" }}>
 												<button
-													className="update-btn"
+													className="details-btn"
 													onClick={() => {
 														setModalVisible(true);
 														setForm(l);
 														setIsNew(false);
 													}}
 												>
-													Details
+													<DotsIcon />
 												</button>
 											</td>
 										</tr>
@@ -645,26 +657,13 @@ const Leads = ({ leads, setLeads, load, clients }: LeadsProps) => {
 								})}
 						</tbody>
 					</table>
-					<div
-						style={{
-							display: "flex",
-							justifyContent: "space-between",
-							alignItems: "center",
-							padding: "10px 0",
-							marginTop: "auto",
-						}}
-					>
-						<div style={{ display: "flex", gap: "5px" }}>
+					<div className="table-container-footer">
+						<div className="table-container-footer-inner">
 							<p
 								style={{
-									color: "#fff",
-									height: "40px",
-									display: "flex",
-									justifyContent: "center",
-									alignItems: "center",
-									padding: "0 10px",
-									borderRadius: "20px",
-									fontWeight: "600",
+									padding: "var(--space-8)",
+									borderRadius: "16px",
+									background: "rgba(255,255,255,0.1)",
 								}}
 							>
 								{(currentPage - 1) * 50 + 1} -{" "}
@@ -672,30 +671,19 @@ const Leads = ({ leads, setLeads, load, clients }: LeadsProps) => {
 							</p>
 							<p
 								style={{
-									color: "#fff",
-									height: "40px",
-									display: "flex",
-									justifyContent: "center",
-									alignItems: "center",
-									padding: "0 10px",
-									borderRadius: "20px",
-									fontWeight: "600",
+									padding: "var(--space-8)",
+									background: "rgba(255,255,255,0.1)",
+									borderRadius: "16px",
 								}}
 							>
 								Всього: {filteredLeads.length}
 							</p>
 						</div>
-						<div style={{ display: "flex", gap: "5px" }}>
-							{Array.from({ length: totalPages }, (_, i) => (
-								<button
-									key={i}
-									onClick={() => setCurrentPage(i + 1)}
-									className={`pag-btn ${currentPage === i + 1 ? "pag-btn--active" : ""}`}
-								>
-									{i + 1}
-								</button>
-							))}
-						</div>
+						<Pagination
+							totalPages={totalPages}
+							currentPage={currentPage}
+							setCurrentPage={setCurrentPage}
+						/>
 					</div>
 				</div>
 			</main>

@@ -1,0 +1,16 @@
+.pag-btn {
+	border-radius: 16px;
+	padding: var(--space-8);
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	line-height: 1;
+
+	&:hover {
+		background: rgba(255, 255, 255, 0.1);
+	}
+
+	&--active {
+		background: rgba(255, 255, 255, 0.1);
+	}
+}

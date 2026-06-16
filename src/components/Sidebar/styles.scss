@@ -50,22 +50,17 @@
 
 .sidebar-nav__link {
 	font-weight: 500;
-	min-width: 50px;
-	width: 100%;
-	height: 50px;
-	border-radius: 12px;
-	padding: 0 15px;
+	border-radius: 16px;
+	padding: var(--space-12);
 	display: flex;
 	justify-content: flex-start;
 	align-items: center;
-	gap: 10px;
+	gap: var(--space-8);
 	white-space: nowrap;
-	color: #ffffff;
+	color: #fff;
 
 	&--active {
-		// background: #4c2e2e;
 		background: rgba(255, 255, 255, 0.1);
-		color: #ffffff;
 	}
 }
 

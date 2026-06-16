@@ -1,17 +1,18 @@
-.pag-btn {
-	background: hsl(0, 0%, 95%);
-	border-radius: 25px;
-	width: 40px;
-	aspect-ratio: 1/1;
+.table-container-footer {
 	display: flex;
-	justify-content: center;
-	align-items: center;
-
+	justify-content: space-between;
+	flex-wrap: wrap;
+	gap: var(--space-4);
+	padding: 10px;
+	margin-top: auto;
+	color: #fff;
 	font-weight: 600;
-	&--active {
-		background: #000;
-		color: #fff;
-	}
+	line-height: 1;
+}
+
+.table-container-footer-inner {
+	display: flex;
+	gap: var(--space-4);
 }
 
 .delete-modal {
@@ -35,8 +36,4 @@
 		opacity: 1;
 		pointer-events: auto;
 	}
-}
-
-.leads-tr {
-	// background: rgb(238, 252, 223);
 }

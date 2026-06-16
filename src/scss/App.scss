@@ -84,6 +84,14 @@ table {
 	}
 }
 
+.basic-icon-btn {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	padding: var(--space-8);
+	border-radius: 16px;
+}
+
 .vacancy-card {
 	display: flex;
 	justify-content: space-around;
@@ -91,20 +99,26 @@ table {
 }
 
 .update-btn {
+	@extend .basic-icon-btn;
 	background: rgb(138, 77, 243);
-	color: rgb(255, 255, 255);
 	border: none;
-	padding: 10px;
-	border-radius: 15px;
+}
+
+.details-btn {
+	@extend .basic-icon-btn;
+	// background: rgb(138, 77, 243);
+	border: none;
+
+	&:hover {
+		background: rgba(255, 255, 255, 0.1);
+	}
 }
 
 .delete-btn {
+	@extend .basic-icon-btn;
 	background: rgb(255, 66, 246);
-	color: rgb(255, 255, 255);
 	border: none;
-	border-radius: 15px;
 	flex-shrink: 0;
-	padding: 10px;
 }
 
 .close-btn {
@@ -239,12 +253,16 @@ form {
 	font-size: 1.5rem;
 }
 
+.basic-txt-btn {
+	padding: var(--space-8);
+	border-radius: 16px;
+	line-height: 1;
+}
+
 .form__submit-btn {
+	@extend .basic-txt-btn;
 	align-self: flex-end;
 	background: rgb(138, 77, 243);
-	color: #fff;
-	padding: 10px;
-	border-radius: 15px;
 
 	&--disabled {
 		opacity: 0.5;
@@ -259,16 +277,11 @@ form {
 }
 
 .search-input {
-	height: 30px;
-	border-radius: 15px;
+	border-radius: 16px;
 	color: #fff;
-	border: 1px solid #fff;
-	width: min(100%, 300px);
-	padding: 0 7.5px;
-
-	&:focus {
-		border: 1px solid #ffffff;
-	}
+	background: rgba(255, 255, 255, 0.1);
+	height: 32px;
+	padding: var(--space-8);
 
 	&::placeholder {
 		color: #fff;
@@ -325,11 +338,10 @@ label {
 }
 
 .create-btn {
-	background: #37c9c2;
+	@extend .basic-txt-btn;
+	background: var(--secondary-accent-clr);
 	color: #fff;
-	padding: 10px;
-	border-radius: 15px;
-	font-weight: 500;
+	margin-left: auto;
 }
 
 a {
@@ -341,11 +353,5 @@ textarea {
 
 	&:focus {
 		outline: none;
-	}
-}
-
-@media screen and (width < 700px) {
-	.main {
-		padding: 10px;
 	}
 }

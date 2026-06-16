@@ -1,8 +1,11 @@
 import { supabase } from "../../lib/supabase";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import type { Client } from "../../interfaces/Client";
-import "./styles.scss";
 import Menu from "../../components/Menu/Menu";
+import EditIcon from "../../components/icons/EditIcon";
+import TrashIcon from "../../components/icons/TrashIcon";
+import Pagination from "../../components/Pagination/Pagination";
+import "./styles.scss";
 
 type ClientForm = Omit<Client, "created_at" | "updated_at">;
 
@@ -28,6 +31,9 @@ const Clients = ({ clients, load }: ClientsProps) => {
 	const [deleteModal, setDeleteModal] = useState(false);
 	const [idToDelete, setIdToDelete] = useState("");
 	const [formLoading, setFormLoading] = useState(false);
+	const [currentPage, setCurrentPage] = useState(1);
+
+	const containerRef = useRef<HTMLDivElement | null>(null);
 
 	// TODO: learn this
 	const filteredClients = clients.filter((lead) =>
@@ -35,18 +41,13 @@ const Clients = ({ clients, load }: ClientsProps) => {
 			String(value).toLowerCase().includes(filter.toLowerCase()),
 		),
 	);
-	const [currentPage, setCurrentPage] = useState(1);
 
 	const handleForm = (name: string, value: unknown) => {
 		setForm((prev) => ({ ...prev, [name]: value }));
 	};
 
-	useEffect(() => {
-		document.documentElement.scrollTo(0, 0);
-	}, [currentPage]);
-
 	// Supabase
-	const insertLead = async (data: Client) => {
+	const insertClient = async (data: Client) => {
 		setError(null);
 		setFormLoading(true);
 
@@ -67,7 +68,7 @@ const Clients = ({ clients, load }: ClientsProps) => {
 		}
 	};
 
-	const updateLead = async (id: string, data: Client) => {
+	const updateClient = async (id: string, data: Client) => {
 		setError(null);
 		setFormLoading(true);
 
@@ -91,7 +92,7 @@ const Clients = ({ clients, load }: ClientsProps) => {
 		}
 	};
 
-	const deleteLead = async (id: string) => {
+	const deleteClient = async (id: string) => {
 		const { error } = await supabase.from("clients").delete().eq("id", id);
 		if (error) console.error("Delete error:", error.message);
 		else load();
@@ -100,10 +101,10 @@ const Clients = ({ clients, load }: ClientsProps) => {
 	// FIXME:
 	const handleSave = async (form: any) => {
 		if (isNew) {
-			const ok = await insertLead(form);
+			const ok = await insertClient(form);
 			if (!ok) return;
 		} else {
-			await updateLead(form.id, form);
+			await updateClient(form.id, form);
 		}
 		setForm(EMPTY_FORM);
 		setIsNew(false);
@@ -112,12 +113,21 @@ const Clients = ({ clients, load }: ClientsProps) => {
 	};
 
 	const handleDelete = () => {
-		deleteLead(idToDelete);
+		deleteClient(idToDelete);
 		setIdToDelete("");
 		setDeleteModal(false);
 	};
 
 	const totalPages = Math.ceil(clients.length / 50);
+
+	useEffect(() => {
+		if (!containerRef.current) return;
+		containerRef.current.scrollTo({
+			top: 0,
+			left: 0,
+			behavior: "smooth",
+		});
+	}, [currentPage]);
 
 	return (
 		<>
@@ -282,7 +292,7 @@ const Clients = ({ clients, load }: ClientsProps) => {
 						Новий клієнт
 					</button>
 				</div>
-				<div className="container">
+				<div ref={containerRef} className="container">
 					<table>
 						<thead>
 							<tr>
@@ -314,9 +324,10 @@ const Clients = ({ clients, load }: ClientsProps) => {
 												{diffDays <= 3 && (
 													<span
 														style={{
-															background: "var(--sec-accent-clr)",
-															color: "#000",
-															padding: "5px",
+															background: "#fd0a9c",
+															color: "#fff",
+															padding: "4px",
+															borderRadius: "8px",
 														}}
 													>
 														Новий
@@ -326,7 +337,13 @@ const Clients = ({ clients, load }: ClientsProps) => {
 											<td>{l.tel}</td>
 											<td style={{ maxWidth: "200px" }}>{l.details}</td>
 											<td style={{ width: "1%" }}>
-												<div style={{ display: "flex", gap: "5px" }}>
+												<div
+													style={{
+														display: "flex",
+														gap: "5px",
+														width: "max-content",
+													}}
+												>
 													<button
 														className="update-btn"
 														onClick={() => {
@@ -335,8 +352,7 @@ const Clients = ({ clients, load }: ClientsProps) => {
 															setIsNew(false);
 														}}
 													>
-														Редагувати
-														{/* <EditIcon size={20} /> */}
+														<EditIcon />
 													</button>
 													<button
 														className="delete-btn"
@@ -344,8 +360,7 @@ const Clients = ({ clients, load }: ClientsProps) => {
 															(setDeleteModal(true), setIdToDelete(l.id));
 														}}
 													>
-														Видалити
-														{/* <TrashIcon size={20} /> */}
+														<TrashIcon />
 													</button>
 												</div>
 											</td>
@@ -354,26 +369,13 @@ const Clients = ({ clients, load }: ClientsProps) => {
 								})}
 						</tbody>
 					</table>
-					<div
-						style={{
-							display: "flex",
-							justifyContent: "space-between",
-							alignItems: "center",
-							padding: "10px 0",
-							marginTop: "auto",
-						}}
-					>
-						<div style={{ display: "flex", gap: "5px" }}>
+					<div className="table-container-footer">
+						<div className="table-container-footer-inner">
 							<p
 								style={{
-									color: "#fff",
-									height: "40px",
-									display: "flex",
-									justifyContent: "center",
-									alignItems: "center",
-									padding: "0 10px",
-									borderRadius: "20px",
-									fontWeight: "600",
+									padding: "var(--space-8)",
+									borderRadius: "16px",
+									background: "rgba(255,255,255,0.1)",
 								}}
 							>
 								{(currentPage - 1) * 50 + 1} -{" "}
@@ -381,30 +383,19 @@ const Clients = ({ clients, load }: ClientsProps) => {
 							</p>
 							<p
 								style={{
-									color: "#fff",
-									height: "40px",
-									display: "flex",
-									justifyContent: "center",
-									alignItems: "center",
-									padding: "0 10px",
-									borderRadius: "20px",
-									fontWeight: "600",
+									padding: "var(--space-8)",
+									background: "rgba(255,255,255,0.1)",
+									borderRadius: "16px",
 								}}
 							>
 								Всього: {filteredClients.length}
 							</p>
 						</div>
-						<div style={{ display: "flex", gap: "5px" }}>
-							{Array.from({ length: totalPages }, (_, i) => (
-								<button
-									key={i}
-									onClick={() => setCurrentPage(i + 1)}
-									className={`pag-btn ${currentPage === i + 1 ? "pag-btn--active" : ""}`}
-								>
-									{i + 1}
-								</button>
-							))}
-						</div>
+						<Pagination
+							totalPages={totalPages}
+							currentPage={currentPage}
+							setCurrentPage={setCurrentPage}
+						/>
 					</div>
 				</div>
 			</main>

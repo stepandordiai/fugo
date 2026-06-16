@@ -1,5 +1,8 @@
 import { NavLink } from "react-router-dom";
 import { supabase } from "../../lib/supabase";
+import PeopleIcon from "../icons/PeopleIcon";
+import HouseFillIcon from "../icons/HouseFillIcon";
+import PersonIcon from "../icons/PersonIcon";
 import "./styles.scss";
 
 const Sidebar = () => {
@@ -22,7 +25,8 @@ const Sidebar = () => {
 					}
 					to="/"
 				>
-					Головна
+					<HouseFillIcon />
+					<span>Головна</span>
 				</NavLink>
 				<NavLink
 					className={({ isActive }) =>
@@ -30,7 +34,8 @@ const Sidebar = () => {
 					}
 					to="/leads"
 				>
-					Ліди
+					<PeopleIcon />
+					<span>Ліди</span>
 				</NavLink>
 				<NavLink
 					className={({ isActive }) =>
@@ -38,7 +43,8 @@ const Sidebar = () => {
 					}
 					to="/clients"
 				>
-					Клієнти
+					<PersonIcon />
+					<span>Клієнти</span>
 				</NavLink>
 			</nav>
 			<button className="logout-btn" onClick={handleLogout}>
