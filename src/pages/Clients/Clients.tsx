@@ -5,6 +5,7 @@ import Menu from "../../components/Menu/Menu";
 import EditIcon from "../../components/icons/EditIcon";
 import TrashIcon from "../../components/icons/TrashIcon";
 import Pagination from "../../components/Pagination/Pagination";
+import type { Lead } from "../../interfaces/Lead";
 import "./styles.scss";
 
 type ClientForm = Omit<Client, "created_at" | "updated_at">;
@@ -20,12 +21,14 @@ type ClientsProps = {
 	clients: Client[];
 	load: () => Promise<void>;
 	setClients: React.Dispatch<React.SetStateAction<Client[]>>;
+	leads: Lead[];
 };
 
-const Clients = ({ clients, load }: ClientsProps) => {
+const Clients = ({ clients, load, leads }: ClientsProps) => {
 	const [isNew, setIsNew] = useState(false);
 	const [modalVisible, setModalVisible] = useState(false);
 	const [form, setForm] = useState(EMPTY_FORM);
+	const [clientId, setClientId] = useState("");
 	const [error, setError] = useState<null | string>(null);
 	const [filter, setFilter] = useState("");
 	const [deleteModal, setDeleteModal] = useState(false);
@@ -107,6 +110,7 @@ const Clients = ({ clients, load }: ClientsProps) => {
 			await updateClient(form.id, form);
 		}
 		setForm(EMPTY_FORM);
+		setClientId("");
 		setIsNew(false);
 		setModalVisible(false);
 		await load();
@@ -119,6 +123,10 @@ const Clients = ({ clients, load }: ClientsProps) => {
 	};
 
 	const totalPages = Math.ceil(clients.length / 50);
+
+	const clientLeads = leads.filter(
+		(l) => clientId && String(l.client_id) === String(clientId),
+	);
 
 	useEffect(() => {
 		if (!containerRef.current) return;
@@ -141,6 +149,7 @@ const Clients = ({ clients, load }: ClientsProps) => {
 						onClick={() => {
 							setModalVisible(false);
 							setForm(EMPTY_FORM);
+							setClientId("");
 						}}
 					>
 						<svg
@@ -195,6 +204,20 @@ const Clients = ({ clients, load }: ClientsProps) => {
 							type="text"
 						/>
 					</div>
+					{clientLeads.length > 0 && (
+						<div>
+							Ліди
+							{clientLeads.map((lead, i) => {
+								return (
+									<div key={lead.id}>
+										<span>{i + 1} </span>
+										<span>{lead.name} </span>
+										<span>{lead.tel}</span>
+									</div>
+								);
+							})}
+						</div>
+					)}
 					<button className="form__submit-btn" type="submit">
 						{formLoading
 							? isNew
@@ -213,6 +236,7 @@ const Clients = ({ clients, load }: ClientsProps) => {
 					setIsNew(false);
 					setIdToDelete("");
 					setForm(EMPTY_FORM);
+					setClientId("");
 				}}
 				className={`main-curtain ${modalVisible || deleteModal ? "main-curtain--visible" : ""}`}
 			></div>
@@ -348,6 +372,7 @@ const Clients = ({ clients, load }: ClientsProps) => {
 														className="update-btn"
 														onClick={() => {
 															setForm(l);
+															setClientId(l.id);
 															setModalVisible(true);
 															setIsNew(false);
 														}}

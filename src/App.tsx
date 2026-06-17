@@ -90,6 +90,7 @@ function App() {
 								clients={clients}
 								setClients={setClients}
 								load={loadClients}
+								leads={leads}
 							/>
 						}
 					/>
