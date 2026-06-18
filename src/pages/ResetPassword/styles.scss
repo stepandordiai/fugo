@@ -1,4 +1,4 @@
-.login {
+.reset-password {
 	display: flex;
 	justify-content: center;
 	align-items: center;
@@ -9,7 +9,7 @@
 	color: #fff;
 }
 
-.login-form {
+.reset-password-container {
 	background: rgba(255, 255, 255, 0.1);
 	padding: 1.25rem;
 	border-radius: 25px;
@@ -19,7 +19,7 @@
 	gap: 10px;
 }
 
-.login-input-container {
+.reset-password-input-container {
 	display: flex;
 	flex-direction: column;
 
@@ -29,17 +29,17 @@
 		border-radius: 10px;
 		transition: border 0.3s;
 
-		&::placeholder {
-			color: rgba(255, 255, 255, 0.5);
-		}
-
 		&:focus {
 			border: 2px solid rgba(255, 255, 255, 0.5);
+		}
+
+		&::placeholder {
+			color: rgba(255, 255, 255, 0.5);
 		}
 	}
 }
 
-.login-submit-btn {
+.primary-btn {
 	background: var(--secondary-accent-clr);
 	padding: 0.5rem;
 	border-radius: 10px;
