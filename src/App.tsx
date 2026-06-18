@@ -2,7 +2,12 @@ import Login from "./pages/Login/Login";
 import { useEffect, useState } from "react";
 import { supabase } from "./lib/supabase";
 import type { Session } from "@supabase/supabase-js";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import {
+	BrowserRouter as Router,
+	Routes,
+	Route,
+	Navigate,
+} from "react-router-dom";
 import Leads from "./pages/Leads/Leads";
 import type { Lead } from "./interfaces/Lead";
 import Home from "./pages/Home/Home";
@@ -59,43 +64,50 @@ function App() {
 
 	// TODO: learn this
 	if (authLoading) return null;
-	if (!session) return <Login />;
 
 	return (
 		<Router>
 			<Routes>
 				<Route path="/reset-password" element={<ResetPassword />} />
 				<Route
+					path="/login"
+					element={!session ? <Login /> : <Navigate to="/" replace />}
+				/>
+				<Route
 					path="/*"
 					element={
-						<div className="layout">
-							<Sidebar />
-							<Routes>
-								<Route path="/" element={<Home leads={leads} />} />
-								<Route
-									path="/leads"
-									element={
-										<Leads
-											leads={leads}
-											setLeads={setLeads}
-											load={loadLeads}
-											clients={clients}
-										/>
-									}
-								/>
-								<Route
-									path="/clients"
-									element={
-										<Clients
-											clients={clients}
-											setClients={setClients}
-											load={loadClients}
-											leads={leads}
-										/>
-									}
-								/>
-							</Routes>
-						</div>
+						!session ? (
+							<Navigate to="/login" replace />
+						) : (
+							<div className="layout">
+								<Sidebar />
+								<Routes>
+									<Route path="/" element={<Home leads={leads} />} />
+									<Route
+										path="/leads"
+										element={
+											<Leads
+												leads={leads}
+												setLeads={setLeads}
+												load={loadLeads}
+												clients={clients}
+											/>
+										}
+									/>
+									<Route
+										path="/clients"
+										element={
+											<Clients
+												clients={clients}
+												setClients={setClients}
+												load={loadClients}
+												leads={leads}
+											/>
+										}
+									/>
+								</Routes>
+							</div>
+						)
 					}
 				/>
 			</Routes>
