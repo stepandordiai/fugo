@@ -2,6 +2,7 @@ import { useState } from "react";
 import XIcon from "../icons/XIcon";
 import { NavLink } from "react-router-dom";
 import MenuIcon from "../icons/MenuIcon";
+import { supabase } from "../../lib/supabase";
 import "./styles.scss";
 
 const Menu = () => {
