@@ -2,9 +2,15 @@ import { useState } from "react";
 import XIcon from "../icons/XIcon";
 import { NavLink } from "react-router-dom";
 import MenuIcon from "../icons/MenuIcon";
+import "./styles.scss";
 
 const Menu = () => {
 	const [menuVisible, setMenuVisible] = useState(false);
+
+	// TODO: LEARN THIS
+	const handleLogout = async () => {
+		await supabase.auth.signOut();
+	};
 
 	return (
 		<>
@@ -54,6 +60,20 @@ const Menu = () => {
 						Клієнти
 					</NavLink>
 				</nav>
+				<button className="logout-btn" onClick={handleLogout}>
+					Вийти
+				</button>
+				<p style={{ color: "#fff", alignSelf: "center" }}>
+					by{" "}
+					<a
+						style={{ color: "#fff" }}
+						href="https://stepandordiai.netlify.app/"
+						target="_blank"
+						rel="noopener noreferrer"
+					>
+						STEPAN DORDIAI
+					</a>
+				</p>
 			</div>
 		</>
 	);
