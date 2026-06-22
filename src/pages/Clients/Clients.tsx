@@ -285,18 +285,16 @@ const Clients = ({ clients, load, leads }: ClientsProps) => {
 			<main className="main">
 				<Menu />
 				<div style={{ display: "flex", justifyContent: "space-between" }}>
-					<h1 className="main__title">Ліди</h1>
+					<h1 className="main__title">Клієнти</h1>
 				</div>
 				<div
 					className="container-header"
 					style={{
-						position: "sticky",
-						top: "0px",
-						padding: "10px 0",
 						display: "flex",
-						color: "#fff",
 						justifyContent: "space-between",
-						background: "rgba(255, 255, 255, 0.1)",
+						alignItems: "flex-end",
+						flexWrap: "wrap",
+						gap: "var(--space-4)",
 					}}
 				>
 					<input
@@ -313,7 +311,7 @@ const Clients = ({ clients, load, leads }: ClientsProps) => {
 							setModalVisible(true);
 						}}
 					>
-						Новий клієнт
+						+ Новий клієнт
 					</button>
 				</div>
 				<div ref={containerRef} className="container">
