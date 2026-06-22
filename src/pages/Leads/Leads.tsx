@@ -374,7 +374,7 @@ const Leads = ({ leads, setLeads, load, clients }: LeadsProps) => {
 							bottom: 0,
 						}}
 					>
-						{!isNew && (
+						{!updateState && !isNew && (
 							<div style={{ display: "flex", gap: "5px" }}>
 								<button
 									type="button"
@@ -396,31 +396,33 @@ const Leads = ({ leads, setLeads, load, clients }: LeadsProps) => {
 								</button>
 							</div>
 						)}
-						<div style={{ display: "flex", gap: "4px" }}>
-							{updateState && (
+						{(updateState || isNew) && (
+							<div style={{ display: "flex", gap: "4px" }}>
+								{updateState && !isNew && (
+									<button
+										onClick={() => setUpdateState(false)}
+										className="form__submit-btn"
+										type="button"
+									>
+										Скасувати
+									</button>
+								)}
+
 								<button
-									onClick={() => setUpdateState(false)}
 									className={`form__submit-btn ${!updateState && !isNew ? "form__submit-btn--disabled" : ""}`}
-									type="button"
+									type="submit"
 									disabled={!updateState && !isNew}
 								>
-									Скасувати
+									{formLoading
+										? isNew
+											? "Створення..."
+											: "Збереження..."
+										: isNew
+											? "Створити"
+											: "Змінити"}
 								</button>
-							)}
-							<button
-								className={`form__submit-btn ${!updateState && !isNew ? "form__submit-btn--disabled" : ""}`}
-								type="submit"
-								disabled={!updateState && !isNew}
-							>
-								{formLoading
-									? isNew
-										? "Створення..."
-										: "Збереження..."
-									: isNew
-										? "Створити"
-										: "Змінити"}
-							</button>
-						</div>
+							</div>
+						)}
 					</div>
 				</form>
 			</div>

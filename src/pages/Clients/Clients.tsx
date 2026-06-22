@@ -7,6 +7,7 @@ import TrashIcon from "../../components/icons/TrashIcon";
 import Pagination from "../../components/Pagination/Pagination";
 import type { Lead } from "../../interfaces/Lead";
 import "./styles.scss";
+import DotsIcon from "../../components/icons/DotsIcon";
 
 type ClientForm = Omit<Client, "created_at" | "updated_at">;
 
@@ -35,6 +36,7 @@ const Clients = ({ clients, load, leads }: ClientsProps) => {
 	const [idToDelete, setIdToDelete] = useState("");
 	const [formLoading, setFormLoading] = useState(false);
 	const [currentPage, setCurrentPage] = useState(1);
+	const [updateState, setUpdateState] = useState(false);
 
 	const containerRef = useRef<HTMLDivElement | null>(null);
 
@@ -113,6 +115,7 @@ const Clients = ({ clients, load, leads }: ClientsProps) => {
 		setClientId("");
 		setIsNew(false);
 		setModalVisible(false);
+		setUpdateState(false);
 		await load();
 	};
 
@@ -150,6 +153,7 @@ const Clients = ({ clients, load, leads }: ClientsProps) => {
 							setModalVisible(false);
 							setForm(EMPTY_FORM);
 							setClientId("");
+							setUpdateState(false);
 						}}
 					>
 						<svg
@@ -175,33 +179,36 @@ const Clients = ({ clients, load, leads }: ClientsProps) => {
 						<label htmlFor="name">Імя</label>
 						<input
 							id="name"
-							className="input"
+							className={`input ${!isNew && !updateState ? "input--disabled" : ""}`}
 							onChange={(e) => handleForm(e.target.name, e.target.value)}
 							value={form.name}
 							name="name"
 							type="text"
+							disabled={!isNew && !updateState}
 						/>
 					</div>
 					<div className="input-container">
 						<label htmlFor="tel">Номер телефону</label>
 						<input
 							id="tel"
-							className="input"
+							className={`input ${!isNew && !updateState ? "input--disabled" : ""}`}
 							onChange={(e) => handleForm(e.target.name, e.target.value)}
 							value={form.tel}
 							name="tel"
 							type="text"
+							disabled={!isNew && !updateState}
 						/>
 					</div>
 					<div className="input-container">
 						<label htmlFor="details">Повідомлення</label>
 						<input
 							id="details"
-							className="input"
+							className={`input ${!isNew && !updateState ? "input--disabled" : ""}`}
 							onChange={(e) => handleForm(e.target.name, e.target.value)}
 							value={form.details}
 							name="details"
 							type="text"
+							disabled={!isNew && !updateState}
 						/>
 					</div>
 					{clientLeads.length > 0 && (
@@ -218,15 +225,55 @@ const Clients = ({ clients, load, leads }: ClientsProps) => {
 							})}
 						</div>
 					)}
-					<button className="form__submit-btn" type="submit">
-						{formLoading
-							? isNew
-								? "Створення..."
-								: "Збереження..."
-							: isNew
-								? "Створити"
-								: "Змінити"}
-					</button>
+					{!updateState && (
+						<div
+							style={{
+								display: "flex",
+								gap: "5px",
+								width: "max-content",
+							}}
+						>
+							<button
+								type="button"
+								className="update-btn"
+								onClick={() => setUpdateState(true)}
+							>
+								<EditIcon />
+							</button>
+							<button
+								type="button"
+								className="delete-btn"
+								onClick={() => {
+									(setDeleteModal(true), setIdToDelete(form.id));
+								}}
+							>
+								<TrashIcon />
+							</button>
+						</div>
+					)}
+
+					{updateState && (
+						<div style={{ display: "flex", gap: "4px" }}>
+							{updateState && !isNew && (
+								<button
+									onClick={() => setUpdateState(false)}
+									className="form__submit-btn"
+									type="button"
+								>
+									Скасувати
+								</button>
+							)}
+							<button className="form__submit-btn" type="submit">
+								{formLoading
+									? isNew
+										? "Створення..."
+										: "Збереження..."
+									: isNew
+										? "Створити"
+										: "Змінити"}
+							</button>
+						</div>
+					)}
 				</form>
 			</div>
 			<div
@@ -359,7 +406,17 @@ const Clients = ({ clients, load, leads }: ClientsProps) => {
 											<td>{l.tel}</td>
 											<td style={{ maxWidth: "200px" }}>{l.details}</td>
 											<td style={{ width: "1%" }}>
-												<div
+												<button
+													className="details-btn"
+													onClick={() => {
+														setModalVisible(true);
+														setForm(l);
+														setIsNew(false);
+													}}
+												>
+													<DotsIcon />
+												</button>
+												{/* <div
 													style={{
 														display: "flex",
 														gap: "5px",
@@ -385,7 +442,7 @@ const Clients = ({ clients, load, leads }: ClientsProps) => {
 													>
 														<TrashIcon />
 													</button>
-												</div>
+												</div> */}
 											</td>
 										</tr>
 									);
