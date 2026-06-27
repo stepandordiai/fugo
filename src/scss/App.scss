@@ -313,6 +313,35 @@ form {
 	}
 }
 
+.textarea {
+	border-radius: 15px;
+	padding: 10px;
+	border: 1px solid white;
+	width: 100%;
+
+	&:focus {
+		background: rgba(255, 255, 255, 0.1);
+	}
+
+	&:focus-within {
+		border: 1px solid #fff;
+	}
+
+	&--incorrect {
+		outline: 1px solid rgb(255, 115, 115) !important;
+	}
+
+	&--disabled {
+		border: none;
+		background: rgba(255, 255, 255, 0.1);
+	}
+}
+
+.textarea-indicator {
+	align-self: flex-end;
+	font-size: 0.75rem;
+}
+
 label {
 	font-weight: 700;
 }

@@ -354,15 +354,20 @@ const Leads = ({ leads, setLeads, load, clients }: LeadsProps) => {
 					</div>
 					<div className="input-container">
 						<label htmlFor="message">Повідомлення</label>
-						<input
+						<textarea
 							id="message"
-							className={`input ${!isNew && !updateState ? "input--disabled" : ""}`}
+							className={`textarea ${!isNew && !updateState ? "input--disabled" : ""}`}
 							onChange={(e) => handleForm(e.target.name, e.target.value)}
 							value={form.message}
 							name="message"
-							type="text"
+							// type="text"
+							rows={9}
+							maxLength={600}
 							disabled={!isNew && !updateState}
 						/>
+						<span className="textarea-indicator">
+							{form.message.length} / 600
+						</span>
 					</div>
 					<div
 						style={{
