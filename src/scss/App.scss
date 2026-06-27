@@ -383,7 +383,7 @@ a {
 }
 
 textarea {
-	resize: none;
+	resize: vertical;
 
 	&:focus {
 		outline: none;

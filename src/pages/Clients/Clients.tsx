@@ -201,13 +201,13 @@ const Clients = ({ clients, load, leads }: ClientsProps) => {
 					</div>
 					<div className="input-container">
 						<label htmlFor="details">Повідомлення</label>
-						<input
+						<textarea
 							id="details"
-							className={`input ${!isNew && !updateState ? "input--disabled" : ""}`}
+							className={`textarea ${!isNew && !updateState ? "input--disabled" : ""}`}
 							onChange={(e) => handleForm(e.target.name, e.target.value)}
 							value={form.details}
 							name="details"
-							type="text"
+							rows={9}
 							disabled={!isNew && !updateState}
 						/>
 					</div>
@@ -225,7 +225,7 @@ const Clients = ({ clients, load, leads }: ClientsProps) => {
 							})}
 						</div>
 					)}
-					{!updateState && (
+					{!updateState && !isNew && (
 						<div
 							style={{
 								display: "flex",
@@ -252,7 +252,7 @@ const Clients = ({ clients, load, leads }: ClientsProps) => {
 						</div>
 					)}
 
-					{updateState && (
+					{(updateState || isNew) && (
 						<div style={{ display: "flex", gap: "4px" }}>
 							{updateState && !isNew && (
 								<button
