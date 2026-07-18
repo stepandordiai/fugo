@@ -79,6 +79,13 @@ const Leads = ({ leads, setLeads, load, clients }: LeadsProps) => {
 				return false;
 			}
 
+			// notify telegram
+			fetch(`${import.meta.env.VITE_NOTIFY_URL}/api/notify-lead`, {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ tel, ...rest, source: "fugo (admin)" }),
+			}).catch(() => {});
+
 			return true;
 		} finally {
 			setFormLoading(false);
