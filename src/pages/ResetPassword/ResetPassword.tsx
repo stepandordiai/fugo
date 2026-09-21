@@ -9,7 +9,9 @@ const ResetPassword = () => {
 	const [error, setError] = useState("");
 	const navigate = useNavigate();
 
-	const handleReset = async () => {
+	const handleResetPassword = async (e: React.FormEvent<HTMLFormElement>) => {
+		e.preventDefault();
+
 		setLoading(true);
 		setError("");
 
@@ -33,7 +35,7 @@ const ResetPassword = () => {
 
 	return (
 		<main className="reset-password">
-			<div className="reset-password-container">
+			<form className="reset-password-container" onSubmit={handleResetPassword}>
 				<h1 style={{ textAlign: "center", fontSize: "1.5rem" }}>
 					Відновлення пароля
 				</h1>
@@ -48,14 +50,10 @@ const ResetPassword = () => {
 						onChange={(e) => setPassword(e.target.value)}
 					/>
 				</div>
-				<button
-					className="primary-btn"
-					onClick={handleReset}
-					disabled={loading}
-				>
+				<button type="submit" className="primary-btn" disabled={loading}>
 					{loading ? "Зачекайте..." : "Змінити пароль"}
 				</button>
-			</div>
+			</form>
 		</main>
 	);
 };

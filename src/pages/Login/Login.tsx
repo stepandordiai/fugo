@@ -10,25 +10,19 @@ const Login = () => {
 	const [forgotPassword, setForgotPassword] = useState(false);
 
 	// TODO: LEARN THIS
-	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+	const handleAuth = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
+
 		setAuthLoading(true);
 		setAuthError("");
 
 		try {
 			if (forgotPassword) {
-				if (!email) {
-					setAuthError("Введіть правильний електронний адрес");
-					return;
-				}
-
 				const { error } = await supabase.auth.resetPasswordForEmail(email, {
 					redirectTo: `${window.location.origin}/reset-password`,
 				});
 
 				if (error) throw error;
-				// FIXME:
-				alert("Лист для відновлення пароля відправлено");
 				setForgotPassword(false);
 				return;
 			}
@@ -52,7 +46,7 @@ const Login = () => {
 				<span style={{ color: "#FFA600" }}>f</span>ugo
 			</h1>
 			{authError && <strong style={{ color: "red" }}>Access denied</strong>}
-			<form className="login-form" onSubmit={handleSubmit}>
+			<form className="login-form" onSubmit={handleAuth}>
 				<p style={{ fontSize: "2rem" }}>
 					{forgotPassword ? "Забули пароль" : "Вхід"}
 				</p>
@@ -63,7 +57,7 @@ const Login = () => {
 						onChange={(e) => setEmail(e.target.value)}
 						value={email}
 						type="email"
-						placeholder="example@gmail.com"
+						required
 					/>
 				</div>
 				{!forgotPassword && (
@@ -74,10 +68,10 @@ const Login = () => {
 							onChange={(e) => setPassword(e.target.value)}
 							value={password}
 							type="password"
+							required
 						/>
 					</div>
 				)}
-
 				<button
 					className="login-submit-btn"
 					type="submit"
